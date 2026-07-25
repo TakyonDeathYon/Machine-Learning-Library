@@ -1,26 +1,60 @@
+#include <inttypes.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// Function to check if adding two nums will overflow
+int add_overflow_check(size_t a, size_t b) {
+  if (b > SIZE_MAX - a) {
+    return -1;
+  }
+  return 0;
+}
+
+// Function to check if multiplying two nums will overflow
+int mult_overflow_check(size_t a, size_t b) {
+  if (a != 0 && b > SIZE_MAX / a) {
+    return -1;
+  }
+  return 0;
+}
+
+// The basic struct of a matrix
 struct mat {
-  int sizes[2];
+  size_t sizes[2];
   int data[];
 };
 
-struct mat *init_mat(const int *dims) {
-
-  struct mat *temp_ =
-      calloc(1, sizeof(*temp_) + dims[0] * dims[1] * sizeof(int));
+// The function to call that builds and initialises a matrix
+struct mat *init_mat(const size_t *dims) {
+  // Check to see if the dimension multiplication will overflow
+  if (mult_overflow_check(dims[0], dims[1])) {
+    return NULL;
+  }
+  size_t area = dims[0] * dims[1];
+  if (mult_overflow_check(area, sizeof(int))) {
+    return NULL;
+  }
+  size_t end_space = area * sizeof(int);
+  if (add_overflow_check(end_space, sizeof(struct mat)))
+    return NULL;
+  size_t total_space = sizeof(struct mat) + end_space;
+  // Assigns a pointer to the struct and allocates enough memory
+  struct mat *temp_ = calloc(1, total_space);
+  // Returns NULL pointer if unable to allocate the memory
   if (temp_ == NULL)
     return NULL;
+  // Writes the sizes to the struct
   for (int i = 0; i < 2; i++) {
     temp_->sizes[i] = dims[i];
   }
   return temp_;
 }
 
-int *get_index(const int *index, struct mat *matrix) {
+// Function to get the value of a given index
+int *get_index(const size_t *index, struct mat *matrix) {
   if (index[0] >= matrix->sizes[0] || index[1] >= matrix->sizes[1])
     return NULL;
   int *val;
@@ -29,9 +63,9 @@ int *get_index(const int *index, struct mat *matrix) {
 }
 
 void print_mat(struct mat *matrix) {
-  for (int i = 0; i < matrix->sizes[0]; i++) {
-    for (int j = 0; j < matrix->sizes[1]; j++) {
-      int index[] = {i, j};
+  for (size_t i = 0; i < matrix->sizes[0]; i++) {
+    for (size_t j = 0; j < matrix->sizes[1]; j++) {
+      size_t index[] = {i, j};
       printf("%d ", *get_index(index, matrix));
     }
     printf("\n");
@@ -39,17 +73,20 @@ void print_mat(struct mat *matrix) {
 }
 
 int main(int argc, char **argv) {
-  int sizes[2];
+  size_t sizes[2];
   char *err;
   for (int i = 1; i < argc; i++) {
-    sizes[i - 1] = strtol(argv[i], &err, 10);
+    sizes[i - 1] = (size_t)strtoumax(argv[i], &err, 10);
     if (*err != '\0')
       exit(EXIT_FAILURE);
   }
 
   struct mat *mat_two = init_mat(sizes);
+  if (mat_two == NULL) {
+    return EXIT_FAILURE;
+  }
 
-  *get_index((int[]){1, 1}, mat_two) = 1;
+  *get_index((size_t[]){1, 1}, mat_two) = 1;
   print_mat(mat_two);
   free(mat_two);
   return 0;
