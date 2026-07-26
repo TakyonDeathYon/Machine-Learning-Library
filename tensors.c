@@ -27,31 +27,35 @@ static size_t *calc_traversal(size_t no_dim, size_t *dims) {
   return traverse_dim;
 }
 
-struct Tensor *init_tensor(size_t no_dim, size_t *dims) {
+struct Tensor *init_tensor(size_t number_of_dims, size_t *dimension_lengths) {
+  if (dimension_lengths == NULL)
+    return NULL;
   // Assign pointer to Tensor and allocate enough space
   struct Tensor *_temp = calloc(1, sizeof(*_temp));
   // Set the no_dims variable
-  _temp->no_dims = no_dim;
+  _temp->no_dims = number_of_dims;
   // Calculate the traversals with func
-  _temp->traverse_dim = calc_traversal(no_dim, dims);
+  _temp->traverse_dim = calc_traversal(number_of_dims, dimension_lengths);
   // Copy the dims into the struct so it doesn't point
   // to the array passed to the init
-  _temp->dims = calloc(no_dim, sizeof(size_t));
-  memcpy(_temp->dims, dims, no_dim * sizeof(size_t));
+  _temp->dims = calloc(number_of_dims, sizeof(size_t));
+  memcpy(_temp->dims, dimension_lengths, number_of_dims * sizeof(size_t));
   // Calculate the size of the tensor ie no of elements
   _temp->size = 1;
-  for (size_t i = 0; i < no_dim; i++) {
-    _temp->size *= dims[i];
+  for (size_t i = 0; i < number_of_dims; i++) {
+    _temp->size *= dimension_lengths[i];
   }
   // Allocate the correct amount of memory to store the tensor
   // initialised to 0
-  _temp->data = calloc(_temp->size, sizeof(float));
+  _temp->data = calloc(_temp->size, sizeof(double));
   // Return the pointer
   return _temp;
 }
 
 // Function to get the index of a given tensor
 double *get_index(struct Tensor *tensor, size_t *index) {
+  if (tensor == NULL)
+    return NULL;
   // Calculate what flat index is needed from
   // given index
   size_t offset = 0;
@@ -64,28 +68,80 @@ double *get_index(struct Tensor *tensor, size_t *index) {
 
 // Function to print the tensor
 void print_tensor(struct Tensor *tensor) {
+  if (tensor == NULL)
+    return;
+  // A variable to store how many changes in
+  // dimension are done between each value.
+  size_t no_dim_changes = 0;
+  // Print the correct starting number of opening braces
+  for (size_t i = 0; i < tensor->no_dims; i++) {
+    printf("[");
+  }
+  // Loop to print out all the data
   for (size_t i = 0; i < tensor->size; i++) {
-    for (size_t j = 0; i < tensor->no_dims; j++) {
-      if (i % tensor->traverse_dim[j] == 0) {
-        printf("The %zuth dimension's %zuth row\n", j,
-               i / tensor->traverse_dim[j]);
+    // For each value check how many changes of dimension
+    // there are
+    for (size_t j = 0; j < tensor->no_dims - 1; j++) {
+      if (i % tensor->traverse_dim[j] == 0 &&
+          (i != 0 || i == tensor->size - 1)) {
+        no_dim_changes++;
+        printf("]");
       }
     }
-    printf("%f ", tensor->data[i]);
+    // Print the right amount of spaces and opening
+    // braces align the columns correctly
+    if (i != 0 && no_dim_changes != 0) {
+      printf("\n");
+      for (size_t j = 0; j < tensor->no_dims - no_dim_changes; j++) {
+        printf(" ");
+      }
+      for (size_t j = 0; j < no_dim_changes; j++) {
+        printf("[");
+      }
+    }
+    // Print out the actual data point
+    printf("%.1f ", tensor->data[i]);
+    // Reset the dimension changes
+    no_dim_changes = 0;
   }
+  // Print out the correct amount of ending
+  // braces
+  for (size_t i = 0; i < tensor->no_dims; i++) {
+    printf("]");
+  }
+  // Make sure the final line is not behind terminal
+  printf("\n");
+}
+
+// Function to print a summery of a tensor
+void sum_tensor(struct Tensor *tensor) {
+  if (tensor == NULL)
+    return;
+  printf("Dimension: %zu\nShape: [ ", tensor->no_dims);
+  for (size_t i = 0; i < tensor->no_dims; i++) {
+    printf("%zu ", tensor->dims[i]);
+  }
+  printf("]\nSize: %zu\n", tensor->size);
 }
 
 // Function to free the memory of a given tensor
-void destroy_tensor(struct Tensor *to_destroy) {
-  free(to_destroy->data);
-  free(to_destroy->traverse_dim);
-  free(to_destroy->dims);
+void destroy_tensor(struct Tensor *tensor) {
+  if (tensor == NULL)
+    return;
+  // Free all the memory assosiated with the tensors
+  // data, then the tensor itself
+  free(tensor->data);
+  free(tensor->traverse_dim);
+  free(tensor->dims);
+  free(tensor);
 }
 
 int main(void) {
-  size_t no_dim = 2;
-  size_t dims[2] = {2, 2};
+  size_t no_dim = 3;
+  size_t dims[3] = {2, 2, 2};
   struct Tensor *my_tensor = init_tensor(no_dim, dims);
   print_tensor(my_tensor);
+  sum_tensor(my_tensor);
+  destroy_tensor(my_tensor);
   return 0;
 }
