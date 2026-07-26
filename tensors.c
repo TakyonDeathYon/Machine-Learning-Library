@@ -54,7 +54,7 @@ struct Tensor *init_tensor(size_t number_of_dims, size_t *dimension_lengths) {
 
 // Function to get the index of a given tensor
 double *get_index(struct Tensor *tensor, size_t *index) {
-  if (tensor == NULL)
+  if (tensor == NULL || index == NULL)
     return NULL;
   // Calculate what flat index is needed from
   // given index
@@ -64,6 +64,20 @@ double *get_index(struct Tensor *tensor, size_t *index) {
   }
   // Return a pointer to the value at the index
   return &(tensor->data[offset]);
+}
+
+// Function to set the index of a given tensor
+void set_index(struct Tensor *tensor, size_t *index, double value) {
+  if (tensor == NULL || index == NULL)
+    printf("Failed to write index as pointer passed was NULL");
+  // Calculate what flat index is needed from
+  // given index
+  size_t offset = 0;
+  for (size_t i = 0; i < tensor->no_dims; i++) {
+    offset += tensor->traverse_dim[i] * index[i];
+  }
+  // Change the index's value
+  tensor->data[offset] = value;
 }
 
 // Function to print the tensor
@@ -113,8 +127,45 @@ void print_tensor(struct Tensor *tensor) {
   printf("\n");
 }
 
+// Function to check if two tensors match in dimension,
+// shape and size
+int check_tensors(struct Tensor *a, struct Tensor *b) {
+  if (a == NULL || b == NULL) {
+    return 0;
+  }
+  // Check if the number of dimensions match
+  if (a->no_dims != b->no_dims) {
+    // Return 0 as false
+    return 0;
+  }
+  // Check is the shapes of the tensors match
+  for (size_t i = 0; i < a->no_dims; i++) {
+    if (a->dims[i] != b->dims[i]) {
+      // Return 0 as false
+      return 0;
+    }
+  }
+  // Return 1 as value for true
+  return 1;
+}
+
+// Function to add tensors elementwise
+struct Tensor *add_tensors(struct Tensor *a, struct Tensor *b) {
+  if (a == NULL || b == NULL) {
+    return NULL;
+  }
+  if (!check_tensors(a, b)) {
+    return NULL;
+  }
+  struct Tensor *_temp = init_tensor(a->no_dims, a->dims);
+  for (size_t i = 0; i < a->size; i++) {
+    _temp->data[i] = a->data[i] + b->data[i];
+  }
+  return _temp;
+}
+
 // Function to print a summery of a tensor
-void sum_tensor(struct Tensor *tensor) {
+void summarise_tensor(struct Tensor *tensor) {
   if (tensor == NULL)
     return;
   printf("Dimension: %zu\nShape: [ ", tensor->no_dims);
@@ -140,8 +191,15 @@ int main(void) {
   size_t no_dim = 3;
   size_t dims[3] = {2, 2, 2};
   struct Tensor *my_tensor = init_tensor(no_dim, dims);
+  double *ind = get_index(my_tensor, (size_t[]){0, 0, 0});
+  *ind = 2;
+  set_index(my_tensor, (size_t[]){1, 1, 1}, 4);
   print_tensor(my_tensor);
-  sum_tensor(my_tensor);
+  summarise_tensor(my_tensor);
+  struct Tensor *summed = add_tensors(my_tensor, my_tensor);
+  print_tensor(summed);
+  // Free all memory
   destroy_tensor(my_tensor);
+  destroy_tensor(summed);
   return 0;
 }
