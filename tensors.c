@@ -15,6 +15,10 @@ struct Tensor {
 };
 
 static size_t *calc_strides(size_t no_dim, size_t *dims) {
+  if (dims == NULL) {
+    fprintf(stderr, "Dimension lengths passed is NULL");
+    return NULL;
+  }
   // Allocate the correct amount of space
   size_t *strides = calloc(no_dim, sizeof(size_t));
   // Set the last value to be 1 as is always true
@@ -28,8 +32,10 @@ static size_t *calc_strides(size_t no_dim, size_t *dims) {
 }
 
 struct Tensor *init_tensor(size_t number_of_dims, size_t *dimension_lengths) {
-  if (dimension_lengths == NULL)
+  if (dimension_lengths == NULL) {
+    fprintf(stderr, "Dimension lengths passed is NULL");
     return NULL;
+  }
   // Assign pointer to Tensor and allocate enough space
   struct Tensor *_temp = calloc(1, sizeof(*_temp));
   // Set the no_dims variable
@@ -56,20 +62,26 @@ struct Tensor *init_tensor(size_t number_of_dims, size_t *dimension_lengths) {
 struct Tensor *init_tensor_random(size_t number_of_dims,
                                   size_t *dimension_lengths, int rand_min,
                                   int rand_max) {
-  if (dimension_lengths == NULL)
+  if (dimension_lengths == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
+  }
   // Assign pointer to Tensor and allocate enough space
   struct Tensor *tensor = init_tensor(number_of_dims, dimension_lengths);
+  // Generates a random value within the range for each index
   for (size_t i = 0; i < tensor->size; i++) {
     tensor->data[i] = (double)((rand() % (rand_max - rand_min + 1)) + rand_min);
   }
+  // Return a pointer to the tensor
   return tensor;
 }
 
 // Function to get the index of a given tensor
 double *get_index(struct Tensor *tensor, size_t *index) {
-  if (tensor == NULL || index == NULL)
+  if (tensor == NULL || index == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
+  }
   // Calculate what flat index is needed from
   // given index
   size_t offset = 0;
@@ -82,8 +94,10 @@ double *get_index(struct Tensor *tensor, size_t *index) {
 
 // Function to set the index of a given tensor
 void set_index(struct Tensor *tensor, size_t *index, double value) {
-  if (tensor == NULL || index == NULL)
-    fprintf(stderr, "Failed to write index as pointer passed was NULL");
+  if (tensor == NULL || index == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
+    return;
+  }
   // Calculate what flat index is needed from
   // given index
   size_t offset = 0;
@@ -94,49 +108,37 @@ void set_index(struct Tensor *tensor, size_t *index, double value) {
   tensor->data[offset] = value;
 }
 
-// Function to print the tensor
-void print_tensor(struct Tensor *tensor) {
-  if (tensor == NULL)
-    return;
-  // A variable to store how many changes in
-  // dimension are done between each value.
-  size_t no_dim_changes = 0;
-  // Print the correct starting number of opening braces
-  for (size_t i = 0; i < tensor->no_dims; i++) {
-    printf("[");
-  }
-  // Loop to print out all the data
-  for (size_t i = 0; i < tensor->size; i++) {
-    // For each value check how many changes of dimension
-    // there are
-    for (size_t j = 0; j < tensor->no_dims - 1; j++) {
-      if (i % tensor->strides[j] == 0 && (i != 0 || i == tensor->size - 1)) {
-        no_dim_changes++;
-        printf("]");
-      }
+// Internal function for printing the tensor
+static void pr(struct Tensor *tensor, size_t offset, size_t dim) {
+  if (dim == tensor->no_dims - 1) {
+    printf("[ ");
+    for (size_t i = 0; i < tensor->dims[dim]; i++) {
+      printf("%.1f ", tensor->data[offset + i * tensor->strides[dim]]);
     }
-    // Print the right amount of spaces and opening
-    // braces align the columns correctly
-    if (i != 0 && no_dim_changes != 0) {
+    printf(" ]");
+    return;
+  }
+  printf("[");
+  for (size_t i = 0; i < tensor->dims[dim]; i++) {
+    if (i > 0) {
       printf("\n");
-      for (size_t j = 0; j < tensor->no_dims - no_dim_changes; j++) {
+      for (size_t j = 0; j < dim + 1; j++) {
         printf(" ");
       }
-      for (size_t j = 0; j < no_dim_changes; j++) {
-        printf("[");
-      }
     }
-    // Print out the actual data point
-    printf("%.1f ", tensor->data[i]);
-    // Reset the dimension changes
-    no_dim_changes = 0;
+    size_t new_offset = offset + i * tensor->strides[dim];
+    pr(tensor, new_offset, dim + 1);
   }
-  // Print out the correct amount of ending
-  // braces
-  for (size_t i = 0; i < tensor->no_dims; i++) {
-    printf("]");
+  printf("]");
+}
+
+// Function to print the tensor
+void print_tensor(struct Tensor *tensor) {
+  if (tensor == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
+    return;
   }
-  // Make sure the final line is not behind terminal
+  pr(tensor, 0, 0);
   printf("\n");
 }
 
@@ -144,6 +146,7 @@ void print_tensor(struct Tensor *tensor) {
 // shape and size
 int check_tensor_match(struct Tensor *a, struct Tensor *b) {
   if (a == NULL || b == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return 0;
   }
   // Check if the number of dimensions match
@@ -165,6 +168,7 @@ int check_tensor_match(struct Tensor *a, struct Tensor *b) {
 // Function to add a scalar to a tensor elementwise
 struct Tensor *add_scalar_tensor(double scalar, struct Tensor *tensor) {
   if (tensor == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
   }
   // Initialises a result tensor to write the values of the sum to
@@ -180,6 +184,7 @@ struct Tensor *add_scalar_tensor(double scalar, struct Tensor *tensor) {
 // Function to multiply a tensor by a scalar elementwise
 struct Tensor *mult_scalar_tensor(double scalar, struct Tensor *tensor) {
   if (tensor == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
   }
   // Initialises a result tensor to write the values of the product to
@@ -195,10 +200,12 @@ struct Tensor *mult_scalar_tensor(double scalar, struct Tensor *tensor) {
 // Function to add tensors elementwise
 struct Tensor *add_tensors(struct Tensor *a, struct Tensor *b) {
   if (a == NULL || b == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
   }
   // Check if the tensors are the same size and shape
   if (!check_tensor_match(a, b)) {
+    fprintf(stderr, "Tensors passed do not match");
     return NULL;
   }
   // Initialises a result tensor to write the values of the sum to
@@ -214,10 +221,12 @@ struct Tensor *add_tensors(struct Tensor *a, struct Tensor *b) {
 // Function to subtract tensors elementwise
 struct Tensor *sub_tensors(struct Tensor *a, struct Tensor *b) {
   if (a == NULL || b == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
   }
   // Check if the tensors are the same size and shape
   if (!check_tensor_match(a, b)) {
+    fprintf(stderr, "Tensors passed do not match");
     return NULL;
   }
   // Initialises a result tensor to write the values of the subtraction to
@@ -233,10 +242,12 @@ struct Tensor *sub_tensors(struct Tensor *a, struct Tensor *b) {
 // Function to multiply tensors elementwise
 struct Tensor *mult_tensors(struct Tensor *a, struct Tensor *b) {
   if (a == NULL || b == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
   }
   // Check if the tensors are the same size and shape
   if (!check_tensor_match(a, b)) {
+    fprintf(stderr, "Tensors passed do not match");
     return NULL;
   }
   // Initialises a result tensor to write the values of the product to
@@ -252,10 +263,12 @@ struct Tensor *mult_tensors(struct Tensor *a, struct Tensor *b) {
 // Function to divide tensors elementwise
 struct Tensor *div_tensors(struct Tensor *a, struct Tensor *b) {
   if (a == NULL || b == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return NULL;
   }
   // Check if the tensors are the same size and shape
   if (!check_tensor_match(a, b)) {
+    fprintf(stderr, "Tensors passed is do not match");
     return NULL;
   }
   // Initialises a result tensor to write the values of the division to
@@ -271,13 +284,38 @@ struct Tensor *div_tensors(struct Tensor *a, struct Tensor *b) {
 
 // Function to print a summery of a tensor
 void summarise_tensor(struct Tensor *tensor) {
-  if (tensor == NULL)
+  if (tensor == NULL) {
+    fprintf(stderr, "Tensor passed is NULL");
     return;
+  }
   printf("Dimension: %zu\nShape: [ ", tensor->no_dims);
   for (size_t i = 0; i < tensor->no_dims; i++) {
     printf("%zu ", tensor->dims[i]);
   }
   printf("]\nSize: %zu\n", tensor->size);
+}
+
+// Function to permute a tensor
+void permute_tensor(struct Tensor *tensor, size_t *permutation) {
+  if (tensor == NULL || permutation == NULL) {
+    fprintf(stderr, "Pointer passed is NULL");
+    return;
+  }
+  // NEED TO CHECK IF PERMUTATION IS INJECTIVE
+  // Create new pointers with enough space for the strides and dims
+  size_t *new_strides = calloc(tensor->no_dims, sizeof(size_t));
+  size_t *new_dims = calloc(tensor->no_dims, sizeof(size_t));
+  // Set the new strides and dims as perutations of the old one
+  for (size_t i = 0; i < tensor->no_dims; i++) {
+    new_strides[i] = tensor->strides[permutation[i]];
+    new_dims[i] = tensor->dims[permutation[i]];
+  }
+  // Free the memory assosiated with the old strides and dims
+  free(tensor->strides);
+  free(tensor->dims);
+  // Set the pointers to point at the new lists
+  tensor->strides = new_strides;
+  tensor->dims = new_dims;
 }
 
 // Function to free the memory of a given tensor
@@ -293,13 +331,14 @@ void destroy_tensor(struct Tensor *tensor) {
 }
 
 int main(void) {
-  size_t no_dim = 3;
-  size_t dims[3] = {2, 2, 2};
+  size_t no_dim = 2;
+  size_t dims[2] = {2, 2};
   struct Tensor *my_tensor = init_tensor_random(no_dim, dims, -100, 100);
-  set_index(my_tensor, (size_t[]){1, 1, 1}, 4);
+  set_index(my_tensor, (size_t[]){0, 1}, 4);
+  permute_tensor(my_tensor, (size_t[]){1, 0});
   print_tensor(my_tensor);
   summarise_tensor(my_tensor);
-  struct Tensor *summed = add_tensors(my_tensor, my_tensor);
+  struct Tensor *summed = add_scalar_tensor((double)10, my_tensor);
   struct Tensor *subbed = sub_tensors(my_tensor, my_tensor);
   struct Tensor *multed = mult_tensors(my_tensor, my_tensor);
   struct Tensor *dived = div_tensors(my_tensor, my_tensor);

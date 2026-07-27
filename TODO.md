@@ -7,9 +7,10 @@
 - [x] Add scalar multiplication
 - [ ] Add elementwise comparison (<,=,>)
 - [ ] Add elementwise function application (ie do log of each value etc)
-- [ ] Add transpose
+- [ ] Add make contiguous function
+- [x] Add transpose
 - [ ] Reductions along axes
-- [ ] Add init_random
+- [x] Add init_random
 - [ ] Add set all function
 - [ ] Add copy tensor function
 - [ ] Add tensor product function
