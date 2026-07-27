@@ -52,6 +52,20 @@ struct Tensor *init_tensor(size_t number_of_dims, size_t *dimension_lengths) {
   return _temp;
 }
 
+// Function to generate a random tensor
+struct Tensor *init_tensor_random(size_t number_of_dims,
+                                  size_t *dimension_lengths, int rand_min,
+                                  int rand_max) {
+  if (dimension_lengths == NULL)
+    return NULL;
+  // Assign pointer to Tensor and allocate enough space
+  struct Tensor *tensor = init_tensor(number_of_dims, dimension_lengths);
+  for (size_t i = 0; i < tensor->size; i++) {
+    tensor->data[i] = (double)((rand() % (rand_max - rand_min + 1)) + rand_min);
+  }
+  return tensor;
+}
+
 // Function to get the index of a given tensor
 double *get_index(struct Tensor *tensor, size_t *index) {
   if (tensor == NULL || index == NULL)
@@ -146,6 +160,36 @@ int check_tensor_match(struct Tensor *a, struct Tensor *b) {
   }
   // Return 1 as value for true
   return 1;
+}
+
+// Function to add a scalar to a tensor elementwise
+struct Tensor *add_scalar_tensor(double scalar, struct Tensor *tensor) {
+  if (tensor == NULL) {
+    return NULL;
+  }
+  // Initialises a result tensor to write the values of the sum to
+  struct Tensor *result = init_tensor(tensor->no_dims, tensor->dims);
+  // Assigns the sum to the result tensor elementwise
+  for (size_t i = 0; i < tensor->size; i++) {
+    result->data[i] = tensor->data[i] + scalar;
+  }
+  // Return a pointer to the sum
+  return result;
+}
+
+// Function to multiply a tensor by a scalar elementwise
+struct Tensor *mult_scalar_tensor(double scalar, struct Tensor *tensor) {
+  if (tensor == NULL) {
+    return NULL;
+  }
+  // Initialises a result tensor to write the values of the product to
+  struct Tensor *result = init_tensor(tensor->no_dims, tensor->dims);
+  // Assigns the product to the result tensor elementwise
+  for (size_t i = 0; i < tensor->size; i++) {
+    result->data[i] = tensor->data[i] * scalar;
+  }
+  // Return a pointer to the product
+  return result;
 }
 
 // Function to add tensors elementwise
@@ -251,7 +295,7 @@ void destroy_tensor(struct Tensor *tensor) {
 int main(void) {
   size_t no_dim = 3;
   size_t dims[3] = {2, 2, 2};
-  struct Tensor *my_tensor = init_tensor(no_dim, dims);
+  struct Tensor *my_tensor = init_tensor_random(no_dim, dims, -100, 100);
   set_index(my_tensor, (size_t[]){1, 1, 1}, 4);
   print_tensor(my_tensor);
   summarise_tensor(my_tensor);

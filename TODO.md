@@ -1,8 +1,10 @@
-- [ ] Add elementwise product
-- [ ] Add elementwise contraction
-- [ ] Add elementwise division
-- [ ] Add scalar addition
-- [ ] Add scalar multiplication
+# TODO
+
+- [x] Add elementwise product
+- [x] Add elementwise subtraction
+- [x] Add elementwise division
+- [x] Add scalar addition
+- [x] Add scalar multiplication
 - [ ] Add elementwise comparison (<,=,>)
 - [ ] Add elementwise function application (ie do log of each value etc)
 - [ ] Add transpose
