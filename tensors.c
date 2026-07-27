@@ -76,6 +76,18 @@ struct Tensor *init_tensor_random(size_t number_of_dims,
   return tensor;
 }
 
+// Function to deep copy a tensor
+struct Tensor *copy_tensor(struct Tensor *tensor) {
+  // Initialise a tensor with te correct size and shape
+  struct Tensor *copy = init_tensor(tensor->no_dims, tensor->dims);
+  // Copy the strides data into the new tensor
+  memcpy(copy->strides, tensor->strides, tensor->no_dims * sizeof(size_t));
+  // Copy the data values into the new tensor
+  memcpy(copy->data, tensor->data, tensor->size * sizeof(double));
+  // Return a pointer to the tensor copy
+  return copy;
+}
+
 // Function to get the index of a given tensor
 double *get_index(struct Tensor *tensor, size_t *index) {
   if (tensor == NULL || index == NULL) {
@@ -306,7 +318,16 @@ void summarise_tensor(struct Tensor *tensor) {
   for (size_t i = 0; i < tensor->no_dims; i++) {
     printf("%zu ", tensor->dims[i]);
   }
-  printf("]\nSize: %zu\n", tensor->size);
+  printf("]\nStrides: [ ");
+  for (size_t i = 0; i < tensor->no_dims; i++) {
+    printf("%zu ", tensor->strides[i]);
+  }
+  printf("]\nMax Value: IMPLEMENT\nMin Value: IMPLEMENT\nSize: %zu\n",
+         tensor->size);
+}
+
+static int compar(const void *a, const void *b) {
+  return (*(int *)a - *(int *)b);
 }
 
 // Function to permute a tensor
@@ -315,9 +336,10 @@ void permute_tensor(struct Tensor *tensor, size_t *permutation) {
     fprintf(stderr, "Error: Pointer passed is NULL\n");
     return;
   }
-  // NEED TO CHECK IF PERMUTATION IS INJECTIVE
+  // Checks if the permutation is injective
   size_t *check_perm = calloc(tensor->no_dims, sizeof(size_t));
   memcpy(check_perm, permutation, tensor->no_dims * sizeof(size_t));
+  qsort(check_perm, tensor->no_dims, sizeof(size_t), compar);
   for (size_t i = 0; i < tensor->no_dims - 1; i++) {
     if (check_perm[i] == check_perm[i + 1]) {
       fprintf(stderr, "Error: Permutation is not injective\n");
@@ -356,26 +378,18 @@ void destroy_tensor(struct Tensor *tensor) {
 }
 
 int main(void) {
-  size_t no_dim = 2;
-  size_t dims[2] = {2, 2};
+  size_t no_dim = 5;
+  size_t dims[5] = {2, 2, 2, 2, 2};
   struct Tensor *my_tensor = init_tensor_random(no_dim, dims, -100, 100);
-  set_index(my_tensor, (size_t[]){0, 1}, 4);
-  permute_tensor(my_tensor, (size_t[]){0, 0});
-  print_tensor(my_tensor);
+  set_index(my_tensor, (size_t[]){0, 1, 1, 1, 0}, 4);
   summarise_tensor(my_tensor);
-  struct Tensor *summed = add_scalar_tensor((double)10, my_tensor);
-  struct Tensor *subbed = sub_tensors(my_tensor, my_tensor);
-  struct Tensor *multed = mult_tensors(my_tensor, my_tensor);
-  struct Tensor *dived = div_tensors(my_tensor, my_tensor);
-  print_tensor(summed);
-  print_tensor(subbed);
-  print_tensor(multed);
-  print_tensor(dived);
+  struct Tensor *copy = copy_tensor(my_tensor);
+  permute_tensor(my_tensor, (size_t[]){1, 0, 3, 2, 4});
+  summarise_tensor(my_tensor);
+  print_tensor(my_tensor);
+  print_tensor(copy);
   // Free all memory
   destroy_tensor(my_tensor);
-  destroy_tensor(summed);
-  destroy_tensor(subbed);
-  destroy_tensor(multed);
-  destroy_tensor(dived);
+  destroy_tensor(copy);
   return 0;
 }

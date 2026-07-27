@@ -5,6 +5,8 @@
 - [x] Add elementwise division
 - [x] Add scalar addition
 - [x] Add scalar multiplication
+- [ ] Add max value function
+- [ ] Add min value function
 - [ ] Add elementwise comparison (<,=,>)
 - [ ] Add elementwise function application (ie do log of each value etc)
 - [ ] Add make contiguous function
