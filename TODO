@@ -1,0 +1,15 @@
+- [ ] Add elementwise product
+- [ ] Add elementwise contraction
+- [ ] Add elementwise division
+- [ ] Add scalar addition
+- [ ] Add scalar multiplication
+- [ ] Add elementwise comparison (<,=,>)
+- [ ] Add elementwise function application (ie do log of each value etc)
+- [ ] Add transpose
+- [ ] Reductions along axes
+- [ ] Add init_random
+- [ ] Add set all function
+- [ ] Add copy tensor function
+- [ ] Add tensor product function
+- [ ] Add batched matmul function
+- [ ] Add tensor contraction function
