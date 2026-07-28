@@ -78,7 +78,7 @@ struct Tensor *init_tensor_random(size_t number_of_dims,
 
 // Function to deep copy a tensor
 struct Tensor *copy_tensor(struct Tensor *tensor) {
-  // Initialise a tensor with te correct size and shape
+  // Initialise a tensor with the correct size and shape
   struct Tensor *copy = init_tensor(tensor->no_dims, tensor->dims);
   // Copy the strides data into the new tensor
   memcpy(copy->strides, tensor->strides, tensor->no_dims * sizeof(size_t));
@@ -308,6 +308,42 @@ struct Tensor *div_tensors(struct Tensor *a, struct Tensor *b) {
   return result;
 }
 
+// Function to get the max value in a tensor
+double *max_value(struct Tensor *tensor) {
+  if (tensor == NULL) {
+    fprintf(stderr, "Error: Tensor passed is NULL\n");
+    return NULL;
+  }
+  // Initialise the pointer on the first data value
+  double *max = &(tensor->data[0]);
+  // Loop through the data and replace the max if there is anythin larger
+  for (size_t i = 0; i < tensor->size; i++) {
+    if (tensor->data[i] > *max) {
+      max = &(tensor->data[i]);
+    }
+  }
+  // Return the pointer
+  return max;
+}
+
+// Function to get the min value in a tensor
+double *min_value(struct Tensor *tensor) {
+  if (tensor == NULL) {
+    fprintf(stderr, "Error: Tensor passed is NULL\n");
+    return NULL;
+  }
+  // Initialise the pointer on the first data value
+  double *min = &(tensor->data[0]);
+  // Loop through the data and replace the min if there is anythinf smaller
+  for (size_t i = 0; i < tensor->size; i++) {
+    if (tensor->data[i] < *min) {
+      min = &(tensor->data[i]);
+    }
+  }
+  // Return the pointer
+  return min;
+}
+
 // Function to print a summery of a tensor
 void summarise_tensor(struct Tensor *tensor) {
   if (tensor == NULL) {
@@ -322,8 +358,8 @@ void summarise_tensor(struct Tensor *tensor) {
   for (size_t i = 0; i < tensor->no_dims; i++) {
     printf("%zu ", tensor->strides[i]);
   }
-  printf("]\nMax Value: IMPLEMENT\nMin Value: IMPLEMENT\nSize: %zu\n",
-         tensor->size);
+  printf("]\nMax Value: %.1f\nMin Value: %.1f\nSize: %zu\n",
+         *(max_value(tensor)), *(min_value(tensor)), tensor->size);
 }
 
 static int compar(const void *a, const void *b) {
