@@ -18,3 +18,4 @@
 - [ ] Add tensor product function
 - [ ] Add batched matmul function
 - [ ] Add tensor contraction function
+- [ ] Make type agnostic (probably quite hard)
