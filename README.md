@@ -1,6 +1,9 @@
-# Machine Learning Library
+# Tensors
 
-This is my attempt to make a basic library for machine learning from
-the ground up in C. This is my first C project so I'm sure there will
-be many mistakes and things done in unconventional or poor ways; please
-forgive me I am learning.
+This is a small library that creates and implements a tensor
+object in C. It has a variety of functions for performing
+simple operations with tensors, like basic additions and subtractions,
+deep copying, permutations and more. Read the documentation below for
+a breakdown of each function and how to use it.
+
+## Making Tensors
