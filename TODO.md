@@ -7,15 +7,24 @@
 - [x] Add scalar multiplication
 - [x] Add max value function
 - [x] Add min value function
-- [ ] Add elementwise comparison (<,=,>)
-- [ ] Add elementwise function application (ie do log of each value etc)
-- [ ] Add make contiguous function
 - [x] Add transpose
-- [ ] Reductions along axes
 - [x] Add init_random
-- [ ] Add set all function
 - [x] Add copy tensor function
+
+## Need to do to clean up project
+
+- [ ] Write docs for each function
+- [ ] Write header file
+- [ ] Remove main function from tensors.c
+
+## Maybe do later when you come back
+
 - [ ] Add tensor product function
+- [ ] Reductions along axes
+- [ ] Add set all function
 - [ ] Add batched matmul function
 - [ ] Add tensor contraction function
 - [ ] Make type agnostic (probably quite hard)
+- [ ] Add elementwise comparison (<,=,>)
+- [ ] Add elementwise function application (ie do log of each value etc)
+- [ ] Add make contiguous function
