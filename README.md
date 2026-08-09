@@ -49,6 +49,12 @@ values, due to the nature of C's random number generator.
 This creates a deep copy of a given tensor, and returns a pointer
 to the created copy.
 
+### `destroy_tensor(struct Tensor *tensor)`
+
+This frees all the memory associated with the given tensor.
+
+## Getting and setting values
+
 ### `get_index(struct Tensor *tensor, size_t *index)`
 
 This returns a pointer to the specified index of the given Tensor
@@ -58,9 +64,19 @@ object.
 
 This changes the value at the specified index to the value passed.
 
+## Printing tensors
+
 ### `print_tensor(struct Tensor *tensor)`
 
 This takes in a Tensor and prints it in a human readable format.
+
+### `summarise_tensor(struct Tensor *tensor)`
+
+Prints out a summary of helpful data about the given tensor.
+This includes the max and min values, the dimension, the strides,
+the shape and the size.
+
+## Element wise operations
 
 ### `check_tensor_match(struct Tensor *tensor_a, struct Tensor *tensor_b)`
 
@@ -100,6 +116,8 @@ Exactly the same as `add_tensors`, except it divides them, with
 `tensor_a / tensor_b`. If there is any element where division by
 zero would occur, the element in that position is set to 0.
 
+## Max and min values
+
 ### `max_value(struct Tensor *tensor)`
 
 Returns a pointer to the maximum value in the given tensor.
@@ -108,11 +126,7 @@ Returns a pointer to the maximum value in the given tensor.
 
 Returns a pointer to the minimum value in the given tensor.
 
-### `summarise_tensor(struct Tensor *tensor)`
-
-Prints out a summary of helpful data about the given tensor.
-This includes the max and min values, the dimension, the strides,
-the shape and the size.
+## Permutations
 
 ### `permute_tensor(struct Tensor *tensor, size_t *permutation)`
 
@@ -121,7 +135,3 @@ permutation on the given tensor, as defined for tensors. This means the given
 permutation must be injective, otherwise it will throw an error.
 
 Note: this modifies the passed tensor, and does not return anything.
-
-### `destroy_tensor(struct Tensor *tensor)`
-
-This frees all the memory associated with the given tensor.
