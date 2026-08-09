@@ -14,14 +14,25 @@ Note: all tensor entries are doubles
 
 This is the most basic creation function, and it creates a tensor of
 the specified shape with all 0 entries. The shape is specified by the
-two parameters: `number_of_dims` and `dim_lengths`. `number_of_dims` is
+two parameters: `number_of_dims` and `dim_lengths`.
+
+`number_of_dims` is
 how many "dimensions" it has (this is the order of the tensor mathematically)
-and will tell you how many indexes you would have to give to specify
+given as a `size_t` and will tell you how many indexes you would have to give to
+specify
 a given position. For example, a tensor with `number_of_dims = 1` is just a
 vector and would have indexes like `[1]`, one with `number_of_dims = 2` is a matrix
 and would have indexes like `[1][1]`, one with `number_of_dims = 3` would be a
 3rd order tensor and would have to be indexed with `[1][1][1]` (note all indexes
 start at 0, as how arrays normally do).
+
+`dim_lengths` is the size of each dimension given as an array of `size_t`
+values. Each
+entry specifies the length of the corresponding dimension and the total length
+has to match the `number_of_dims`. For example, if you make a tensor with
+`dim_lengths = [2, 2]`, it will have to have `number_of_dims = 2` and the max
+indexed element would be `[1][1]` (as indexing starts at 0, and each dimension
+has 2 elements).
 
 ### init_tensor_random(size_t number_of_dims, size_t *dim_lengths, int rand_min, int rand_max)
 
